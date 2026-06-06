@@ -1,9 +1,10 @@
 import dotenv from "dotenv";
+import app from "./app.js";
 
 dotenv.config({
   path: "./.env",
 });
 
-console.log(process.env.USERNAME);
+const port = 3000;
 
-console.log("Expense Tracker Api");
+app.listen(port, console.log(`server is running on port localhost:${port}`));
