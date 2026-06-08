@@ -10,8 +10,7 @@ const port = 3000;
 
 connectDB()
   .then(() => {
-    app.listen(
-      port,
+    app.listen(port, () =>
       console.log(`server is running on port localhost:${port}`),
     );
   })
