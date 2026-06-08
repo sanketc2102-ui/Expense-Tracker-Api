@@ -8,7 +8,12 @@ const generateTemporaryToken = () => {
     .update(unHashedToken)
     .digest("hex");
 
-  const tokenExpiery = Date.now() + 20 * 60 * 1000; // 20min
+  const expiryTimeMs = Date.now() + 20 * 60 * 1000; // 20min
+
+  const tokenExpiery = new Date(expiryTimeMs)
+    .toISOString()
+    .slice(0, 19)
+    .replace("T", " ");
 
   return { unHashedToken, hashedToken, tokenExpiery };
 };
