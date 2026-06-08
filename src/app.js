@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import authRouter from "./routes/auth.routes.js";
+import { errorHandler } from "./middlewares/error.middleware.js";
 
 const app = express();
 
@@ -19,5 +20,8 @@ app.use(
 );
 
 app.use("/api/v1/auth", authRouter);
+
+// gloable Error handling
+app.use(errorHandler);
 
 export default app;
