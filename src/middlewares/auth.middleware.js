@@ -1,12 +1,15 @@
 import "dotenv/config";
-import { ApiError } from "../utils/apiError";
-import { asyncHandler } from "../utils/asyncHandler";
+import { ApiError } from "../utils/apiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
 import db from "../db/dbConnection.js";
 
 const jwtVerify = asyncHandler(async (req, res, next) => {
   const token =
-    req?.cookies("token") || req?.header("Authorization").replace("bearer", "");
+    req?.cookies?.accessToken ||
+    req?.header("Authorization").replace("Bearer ", "");
+
+  console.log(token);
 
   if (!token) {
     throw new ApiError(400, "Unauthorized request");
@@ -14,6 +17,8 @@ const jwtVerify = asyncHandler(async (req, res, next) => {
 
   try {
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+    console.log(decodedToken);
 
     const [[user]] = await db.execute(
       `SELECT id, email, username FROM users WHERE id = ?`,
@@ -31,3 +36,5 @@ const jwtVerify = asyncHandler(async (req, res, next) => {
     throw new ApiError(400, "Invalid access token");
   }
 });
+
+export default jwtVerify;

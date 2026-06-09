@@ -7,10 +7,11 @@ import { hashedPassword, isPasswordCorrect } from "../utils/bcrypt.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
 import { generateTemporaryToken } from "../utils/token.js";
 import crypto from "node:crypto";
+import jwt from "jsonwebtoken";
 
 const generateAccessAndRefreshToken = async (userId) => {
   const [users] = await db.execute(
-    `SELECT username, email FROM users WHERE id = ?`,
+    `SELECT id, username, email FROM users WHERE id = ?`,
     [userId],
   );
 
@@ -134,4 +135,12 @@ const login = asyncHandler(async (req, res) => {
     );
 });
 
-export { registerUser, login };
+const getCurrentUser = asyncHandler(async (req, res) => {
+  const user = req.user;
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "User successfully fetched"));
+});
+
+export { registerUser, login, getCurrentUser };
