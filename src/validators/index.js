@@ -21,4 +21,16 @@ const registerUserValidators = () => {
   ];
 };
 
-export { registerUserValidators };
+const loginUserValidators = () => {
+  return [
+    body("email")
+      .trim()
+      .notEmpty()
+      .withMessage("email is required field")
+      .isEmail()
+      .withMessage("Please enter valid email"),
+    body("password").trim().notEmpty().withMessage("password is required"),
+  ];
+};
+
+export { registerUserValidators, loginUserValidators };
