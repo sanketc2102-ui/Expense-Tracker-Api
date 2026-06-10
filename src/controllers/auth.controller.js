@@ -186,4 +186,44 @@ const verifyEmail = asyncHandler(async (req, res) => {
     );
 });
 
+// we  allowed resend verification email to loged in user only
+const resentEmailVerification = asyncHandler(async (req, res) => {
+  const user = req.user;
+
+  if (!user) {
+    throw new ApiError(400, "unauthorized request");
+  }
+
+  const [result] = await db.execute(
+    "SELECT is_email_verified FROM users WHERE id = ?",
+    [user.id],
+  );
+
+  const user = result[0];
+
+  if (user.is_email_verified === 1) {
+    throw new ApiError(400, "Email is alredy verified");
+  }
+
+  const { unHashedToken, hashedToken, tokenExpiery } = generateTemporaryToken();
+
+  const [result] = await db.execute(
+    "UPDATE users SET email_verification_token = ?, email_verification_expiry = ? WHERE id = ? ",
+    [hashedToken, tokenExpiery, user.id],
+  );
+
+  await sendMail({
+    email: email,
+    subject: "pleas verify your email",
+    mailGenContent: emailVerificationMailGen(
+      name,
+      `${req.protocol}://${req.get("host")}/auth/v1/verify-email/${unHashedToken}`,
+    ),
+  });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "email is been you to your inbox"));
+});
+
 export { registerUser, login, getCurrentUser, verifyEmail };
