@@ -68,7 +68,7 @@ const registerUser = asyncHandler(async (req, res) => {
     subject: "pleas verify your email",
     mailGenContent: emailVerificationMailGen(
       name,
-      `${req.protocol}://${req.get("host")}/verify-email/${unHashedToken}`,
+      `${req.protocol}://${req.get("host")}/auth/v1/verify-email/${unHashedToken}`,
     ),
   });
 
@@ -143,4 +143,47 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "User successfully fetched"));
 });
 
-export { registerUser, login, getCurrentUser };
+const verifyEmail = asyncHandler(async (req, res) => {
+  const { verificationToken } = req.params;
+
+  if (!verificationToken) {
+    throw new ApiError(400, "Token is missing");
+  }
+
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(verificationToken)
+    .digest("hex");
+
+  console.log("hashed Token", hashedToken);
+
+  const [result] = await db.execute(
+    `SELECT id, username FROM users WHERE email_verification_token = ? AND email_verification_expiry > NOW()`,
+    [hashedToken],
+  );
+
+  console.log(result);
+
+  if (result.length === 0) {
+    throw new ApiError(400, "Invaid or expired token");
+  }
+
+  const user = result[0];
+
+  await db.execute(
+    `UPDATE users SET email_verification_token = ?, email_verification_expiry = ?, is_email_verified = ? WHERE id = ?`,
+    [null, null, 1, user.id],
+  );
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { username: user.username, isEmailVerified: true },
+        "email successfully verified",
+      ),
+    );
+});
+
+export { registerUser, login, getCurrentUser, verifyEmail };

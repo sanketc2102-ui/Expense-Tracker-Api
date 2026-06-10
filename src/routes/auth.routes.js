@@ -3,6 +3,7 @@ import {
   getCurrentUser,
   login,
   registerUser,
+  verifyEmail,
 } from "../controllers/auth.controller.js";
 import validate from "../middlewares/validator.middleware.js";
 import {
@@ -18,6 +19,8 @@ router
   .post(registerUserValidators(), validate, registerUser);
 
 router.route("/login").post(loginUserValidators(), validate, login);
+
+router.route("/verify-email/:verificationToken").get(verifyEmail);
 
 // secured route
 router.route("/me").get(jwtVerify, getCurrentUser);
