@@ -226,4 +226,63 @@ const resentEmailVerification = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "email is been you to your inbox"));
 });
 
-export { registerUser, login, getCurrentUser, verifyEmail };
+const refreshAccessToken = asyncHandler(async (req, res) => {
+  const inComingToken = req.cookies.refreshToken;
+
+  if (!inComingToken) {
+    throw new ApiError(400, "Token is not provided");
+  }
+
+  try {
+    const decodedRefreshToken = jwt.verify(
+      inComingToken,
+      process.env.REFRESH_TOKEN_SECRET,
+    );
+
+    if (!decodedRefreshToken?.id) {
+      throw new ApiError(401, "Invalid refresh token");
+    }
+
+    const [[user]] = await db.execute(
+      "SELECT refresh_token FROM users WHERE id = ? ",
+      [decodedRefreshToken.id],
+    );
+
+    if (!user) {
+      throw new ApiError(400, "");
+    }
+
+    if (user.refresh_token !== inComingToken) {
+      throw new ApiError(401, "Refresh Token is invalid or expired");
+    }
+
+    const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
+      decodedRefreshToken.id,
+    );
+
+    await db.execute("UPDATE users SET refresh_token = ? WHERE id = ?", [
+      refreshToken,
+      decodedRefreshToken.id,
+    ]);
+
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+
+    return res
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .json(
+        new ApiResponse(
+          200,
+          { accessToken, refreshToken },
+          "re-generatin of token compelte",
+        ),
+      );
+  } catch (err) {
+    throw new ApiError(401, "invalid refresh  token", err);
+  }
+});
+
+export { registerUser, login, getCurrentUser, verifyEmail, refreshAccessToken };
