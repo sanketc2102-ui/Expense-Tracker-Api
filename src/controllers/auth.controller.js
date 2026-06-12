@@ -315,7 +315,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 //  #ff2c2c
-const forgotPasswordRequest = async(async (req, res) => {
+const forgotPasswordRequest = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
   const [[user]] = await db.execute(
