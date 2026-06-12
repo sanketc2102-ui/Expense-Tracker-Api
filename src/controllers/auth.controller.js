@@ -135,6 +135,30 @@ const login = asyncHandler(async (req, res) => {
     );
 });
 
+const logOut = asyncHandler(async (req, res) => {
+  const user = req.user;
+
+  if (!user) {
+    throw new ApiError(400, "user is not found");
+  }
+
+  await db.execute(`UPDATE users SET refresh_token = ? WHERE id = ?`, [
+    null,
+    user.id,
+  ]);
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  return res
+    .clearCookie("accessToken", options)
+    .clearCookie("")
+    .status(200)
+    .json(new ApiResponse(200, {}, "log out successfully"));
+});
+
 const getCurrentUser = asyncHandler(async (req, res) => {
   const user = req.user;
 
