@@ -154,7 +154,7 @@ const logOut = asyncHandler(async (req, res) => {
 
   return res
     .clearCookie("accessToken", options)
-    .clearCookie("")
+    .clearCookie("refreshToken", options)
     .status(200)
     .json(new ApiResponse(200, {}, "log out successfully"));
 });
@@ -223,17 +223,17 @@ const resentEmailVerification = asyncHandler(async (req, res) => {
     [user.id],
   );
 
-  const user = result[0];
+  const resultUser = result[0];
 
-  if (user.is_email_verified === 1) {
+  if (resultUser.is_email_verified === 1) {
     throw new ApiError(400, "Email is alredy verified");
   }
 
   const { unHashedToken, hashedToken, tokenExpiery } = generateTemporaryToken();
 
-  const [result] = await db.execute(
+  const [users] = await db.execute(
     "UPDATE users SET email_verification_token = ?, email_verification_expiry = ? WHERE id = ? ",
-    [hashedToken, tokenExpiery, user.id],
+    [hashedToken, tokenExpiery, resultUser.id],
   );
 
   await sendMail({
@@ -309,4 +309,11 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser, login, getCurrentUser, verifyEmail, refreshAccessToken };
+export {
+  registerUser,
+  login,
+  logOut,
+  getCurrentUser,
+  verifyEmail,
+  refreshAccessToken,
+};

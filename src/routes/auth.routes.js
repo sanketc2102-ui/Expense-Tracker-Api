@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   getCurrentUser,
   login,
+  logOut,
   registerUser,
   verifyEmail,
 } from "../controllers/auth.controller.js";
@@ -19,6 +20,7 @@ router
   .post(registerUserValidators(), validate, registerUser);
 
 router.route("/login").post(loginUserValidators(), validate, login);
+router.route("/logout").post(jwtVerify, logOut);
 
 router.route("/verify-email/:verificationToken").get(verifyEmail);
 
