@@ -330,13 +330,13 @@ const forgotPasswordRequest = asyncHandler(async (req, res) => {
   const { unHashedToken, hashedToken, tokenExpiery } = generateTemporaryToken();
 
   await db.execute(
-    `UPDATE users SET  email_verification_token = ?, email_verification_expiry = ? WHERE id = ?`,
+    `UPDATE users SET  forget_password_token = ?, forget_password_expiry = ? WHERE id = ?`,
     [hashedToken, tokenExpiery, user.id],
   );
 
   await sendMail({
     email: email,
-    subject: "please reset password",
+    subject: "Resetting forgotted password",
     mailGenContent: forgetPasswordMailGen(
       user.username,
       `${process.env.FORGET_PASSWORD_URL}/${unHashedToken}`,
@@ -348,6 +348,40 @@ const forgotPasswordRequest = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "reset password email been send to you"));
 });
 
+const resetForgotPassword = asyncHandler(async (req, res) => {
+  const { forgetpasswordToken } = req.params;
+  const { password: newPassword } = req.body;
+
+  if (!forgetpasswordToken) {
+    throw new ApiError(400, "Invalid or missing token");
+  }
+
+  const hashedtoken = crypto
+    .createHash("sha256")
+    .update(forgetpasswordToken)
+    .digest("hex");
+
+  const [[user]] = await db.execute(
+    "SELECT id, username, forget_password_token FROM users WHERE email_verification_token = ? AND email forget_password_expiry > NOW() ",
+    [hashedtoken],
+  );
+
+  if (!user) {
+    throw new ApiError(409, "Invalid or expired token");
+  }
+
+  const hashedNewPassword = await hashedPassword(newPassword);
+
+  await db.execute(
+    "UPDATE users SET forget_password_token = ?, forget_password_expiry = ? , password = ? WHERE id = ?",
+    [null, null, hashedNewPassword, user.id],
+  );
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "password reset successfully"));
+});
+
 export {
   registerUser,
   login,
@@ -356,4 +390,6 @@ export {
   verifyEmail,
   refreshAccessToken,
   forgotPasswordRequest,
+  resentEmailVerification,
+  resetForgotPassword,
 };
