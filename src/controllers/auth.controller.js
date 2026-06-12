@@ -2,7 +2,11 @@ import db from "../db/dbConnection.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { ApiError } from "../utils/apiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { emailVerificationMailGen, sendMail } from "../utils/mail.js";
+import {
+  emailVerificationMailGen,
+  forgetPasswordMailGen,
+  sendMail,
+} from "../utils/mail.js";
 import { hashedPassword, isPasswordCorrect } from "../utils/bcrypt.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
 import { generateTemporaryToken } from "../utils/token.js";
@@ -210,7 +214,7 @@ const verifyEmail = asyncHandler(async (req, res) => {
     );
 });
 
-// we  allowed resend verification email to loged in user only
+// #ff2c2c pending :- we  allowed resend verification email to loged in user only
 const resentEmailVerification = asyncHandler(async (req, res) => {
   const user = req.user;
 
@@ -250,6 +254,7 @@ const resentEmailVerification = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "email is been you to your inbox"));
 });
 
+//#ff2c2c pending
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const inComingToken = req.cookies.refreshToken;
 
@@ -309,6 +314,40 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
+//  #ff2c2c
+const forgotPasswordRequest = async(async (req, res) => {
+  const { email } = req.body;
+
+  const [[user]] = await db.execute(
+    "SELECT id, username, email FROM users WHERE email = ?",
+    [email],
+  );
+
+  if (!user) {
+    throw new ApiError("User with email does not exit");
+  }
+
+  const { unHashedToken, hashedToken, tokenExpiery } = generateTemporaryToken();
+
+  await db.execute(
+    `UPDATE users SET  email_verification_token = ?, email_verification_expiry = ? WHERE id = ?`,
+    [hashedToken, tokenExpiery, user.id],
+  );
+
+  await sendMail({
+    email: email,
+    subject: "please reset password",
+    mailGenContent: forgetPasswordMailGen(
+      user.username,
+      `${process.env.FORGET_PASSWORD_URL}/${unHashedToken}`,
+    ),
+  });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "reset password email been send to you"));
+});
+
 export {
   registerUser,
   login,
@@ -316,4 +355,5 @@ export {
   getCurrentUser,
   verifyEmail,
   refreshAccessToken,
+  forgotPasswordRequest,
 };
