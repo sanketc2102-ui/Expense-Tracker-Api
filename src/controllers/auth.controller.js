@@ -10,7 +10,7 @@ import {
 import { hashedPassword, isPasswordCorrect } from "../utils/bcrypt.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
 import { generateTemporaryToken } from "../utils/token.js";
-import crypto from "node:crypto";
+import crypto, { createHash } from "node:crypto";
 import jwt from "jsonwebtoken";
 
 const generateAccessAndRefreshToken = async (userId) => {
@@ -382,6 +382,43 @@ const resetForgotPassword = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "password reset successfully"));
 });
 
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+  const { newPassword, oldPassword } = req.body;
+
+  const user = req.user;
+
+  if (!user) {
+    throw new ApiError(400, "unauthorized request");
+  }
+
+  const [[resultedUser]] = await db.execute(
+    "SELECT password_hash FROM users WHERE id = ? ",
+    [user.id],
+  );
+
+  const userInputedOldPwHashed = await hashedPassword(oldPassword);
+
+  const isValidPassWord = await isPasswordCorrect(
+    userInputedOldPwHashed,
+    resultedUser.password_hash,
+  );
+
+  if (isValidPassWord) {
+    throw new ApiError("incorrect password");
+  }
+
+  const hashedNewPassword = await hashedPassword(newPassword);
+
+  await db.execute("UPDATE users SET password = ? WHERE id = ?", [
+    hashedNewPassword,
+    user.id,
+  ]);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "password is being reset"));
+});
+
 export {
   registerUser,
   login,
@@ -392,4 +429,5 @@ export {
   forgotPasswordRequest,
   resentEmailVerification,
   resetForgotPassword,
+  changeCurrentPassword,
 };
