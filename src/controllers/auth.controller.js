@@ -382,6 +382,7 @@ const resetForgotPassword = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "password reset successfully"));
 });
 
+//#ff2c2c
 const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { newPassword, oldPassword } = req.body;
 
@@ -409,7 +410,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
   const hashedNewPassword = await hashedPassword(newPassword);
 
-  await db.execute("UPDATE users SET password = ? WHERE id = ?", [
+  await db.execute("UPDATE users SET password_hash = ? WHERE id = ?", [
     hashedNewPassword,
     user.id,
   ]);
