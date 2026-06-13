@@ -256,7 +256,7 @@ const resentEmailVerification = asyncHandler(async (req, res) => {
 
 //#ff2c2c pending
 const refreshAccessToken = asyncHandler(async (req, res) => {
-  const inComingToken = req.cookies.refreshToken;
+  const inComingToken = req.cookies.refreshToken || req.body.refreshToken;
 
   if (!inComingToken) {
     throw new ApiError(400, "Token is not provided");
@@ -288,11 +288,6 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
       decodedRefreshToken.id,
     );
-
-    await db.execute("UPDATE users SET refresh_token = ? WHERE id = ?", [
-      refreshToken,
-      decodedRefreshToken.id,
-    ]);
 
     const options = {
       httpOnly: true,
@@ -382,7 +377,6 @@ const resetForgotPassword = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "password reset successfully"));
 });
 
-//#ff2c2c
 const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { newPassword, oldPassword } = req.body;
 
