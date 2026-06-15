@@ -13,6 +13,19 @@ import { generateTemporaryToken } from "../utils/token.js";
 import crypto, { createHash } from "node:crypto";
 import jwt from "jsonwebtoken";
 
+const createDefaultCetegories = async (userId) => {
+  await db.execute(
+    `INSERT INTO categories (user_id, type)
+     VALUES
+     (?, 'Food & Drinks'),
+     (?, 'Groceries'),
+     (?, 'Travel'),
+     (?, 'Health'),
+     (?, 'Entertainment')`,
+    [userId, userId, userId, userId, userId],
+  );
+};
+
 const generateAccessAndRefreshToken = async (userId) => {
   const [users] = await db.execute(
     `SELECT id, username, email FROM users WHERE id = ?`,
@@ -66,6 +79,8 @@ const registerUser = asyncHandler(async (req, res) => {
   );
 
   const newUserId = newUser.insertId;
+
+  await createDefaultCetegories(newUserId);
 
   await sendMail({
     email: email,
