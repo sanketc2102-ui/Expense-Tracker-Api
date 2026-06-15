@@ -79,4 +79,24 @@ const updateCategoryById = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, {}, "Successful Update"));
 });
 
+const deleteCategoryById = asyncHandler(async (req, res) => {
+  const { categoryId } = req.params;
+
+  const [result] = await db.execute(
+    `
+    DELETE FROM categories
+    WHERE id = ? AND user_id = ?
+    `,
+    [categoryId, req.user.id],
+  );
+
+  if (result.affectedRows === 0) {
+    throw new ApiError(404, "category not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "category deleted successfully"));
+});
+
 export { getAllCategories, getCategoryById, updateCategoryById };

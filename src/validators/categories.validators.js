@@ -26,4 +26,12 @@ const updateCategoryValidators = () => {
   ];
 };
 
+const deleteCategoryValidator = () => {
+  return [
+    param("categoryId")
+      .isInt({ min: 1 })
+      .withMessage("category id must be a number"),
+  ];
+};
+
 export { categoryTypeValidator, updateCategoryValidators };
