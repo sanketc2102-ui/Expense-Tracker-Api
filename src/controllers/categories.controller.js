@@ -15,7 +15,7 @@ const getAllCategories = asyncHandler(async (req, res) => {
     SELECT type 
     FROM  categories 
     WHERE user_id = ? 
-    ORDER BY ASC
+    ORDER BY type ASC
     `,
 
     [user.id],
@@ -28,4 +28,35 @@ const getAllCategories = asyncHandler(async (req, res) => {
     );
 });
 
-export { getAllCategories };
+const getCategoryById = asyncHandler(async (req, res) => {
+  const { categoryId } = req.params;
+
+  if (!Number.isInteger(Number(categoryId))) {
+    throw new ApiError(400, "Invalid category id");
+  }
+
+  if (!categoryId) {
+    throw new ApiError(400, "Please provide the category id");
+  }
+
+  const [category] = await db.execute(
+    `
+    SELECT type
+    FROM categories
+    WHERE id = ? AND user_id = ?
+    `,
+    [categoryId, req.user.id],
+  );
+
+  if (category.length === 0) {
+    throw new ApiError(400, "category not found");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, category, "Required Category fetched successfully"),
+    );
+});
+
+export { getAllCategories, getCategoryById };
