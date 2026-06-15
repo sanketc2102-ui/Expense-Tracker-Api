@@ -59,4 +59,24 @@ const getCategoryById = asyncHandler(async (req, res) => {
     );
 });
 
-export { getAllCategories, getCategoryById };
+const updateCategoryById = asyncHandler(async (req, res) => {
+  const { categoryId } = req.params;
+  const { categoryTypeToUpdate } = req.body;
+
+  const [result] = await db.execute(
+    `
+    UPDATE categories
+    SET type = ?
+    WHERE id = ? AND user_id = ?
+    `,
+    [categoryTypeToUpdate, categoryId, req.user.id],
+  );
+
+  if (result.affectedRows === 0) {
+    throw new ApiError(404, "category not found");
+  }
+
+  return res.status(200).json(new ApiResponse(200, {}, "Successful Update"));
+});
+
+export { getAllCategories, getCategoryById, updateCategoryById };
