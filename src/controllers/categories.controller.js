@@ -99,4 +99,32 @@ const deleteCategoryById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "category deleted successfully"));
 });
 
-export { getAllCategories, getCategoryById, updateCategoryById };
+const createCategory = asyncHandler(async (req, res) => {
+  const { typeOfCategory } = req.body;
+
+  const [result] = await db.execute(
+    `
+    INSERT INTO categories (user_id, type)
+    VALUES (?, ?)
+    `,
+    [req.user.id, typeOfCategory],
+  );
+
+  return res.status(201).json(
+    new ApiResponse(
+      201,
+      {
+        id: result.insertId,
+        type: typeOfCategory,
+      },
+      "category created succesfully",
+    ),
+  );
+});
+
+export {
+  getAllCategories,
+  getCategoryById,
+  updateCategoryById,
+  createCategory,
+};

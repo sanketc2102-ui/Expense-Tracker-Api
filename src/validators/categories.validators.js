@@ -34,4 +34,19 @@ const deleteCategoryValidator = () => {
   ];
 };
 
-export { categoryTypeValidator, updateCategoryValidators };
+const createCategoryValidator = () => {
+  return [
+    body("typeOfCategory")
+      .trim()
+      .notEmpty()
+      .withMessage("category is required")
+      .isLength({ min: 3, max: 100 })
+      .withMessage("category must contain between 3 and 100 characters"),
+  ];
+};
+
+export {
+  categoryTypeValidator,
+  updateCategoryValidators,
+  createCategoryValidator,
+};
