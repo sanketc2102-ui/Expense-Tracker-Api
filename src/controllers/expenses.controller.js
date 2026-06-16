@@ -72,4 +72,31 @@ const getAllExpenses = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, result, "Expenses fetched successfully"));
 });
 
-export { createExpense, getAllExpenses };
+const getExpenseById = asyncHandler(async (req, res) => {
+  const { expenseId } = req.params;
+
+  const [expense] = await db.execute(
+    `
+    SELECT 
+      id, 
+      name, 
+      expense_date, 
+      amount 
+    FROM expenses
+    WHERE id = ?
+      AND user_id = ?
+      AND deleted_at IS NULL
+    `,
+    [expenseId, req.user.id],
+  );
+
+  if (expense.length === 0) {
+    throw new ApiError(404, "no expense is found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, expense[0], "expense fetched successfully"));
+});
+
+export { createExpense, getAllExpenses, getExpenseById };

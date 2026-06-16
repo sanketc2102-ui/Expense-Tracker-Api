@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 
 const createExpenseValidator = () => {
   return [
@@ -29,4 +29,14 @@ const createExpenseValidator = () => {
   ];
 };
 
-export { createExpenseValidator };
+const getExpenseByIdValidator = () => {
+  return [
+    param("expenseId")
+      .notEmpty()
+      .withMessage("expense id is required ")
+      .isInt({ gt: 0 })
+      .withMessage("expense is must be type of number"),
+  ];
+};
+
+export { createExpenseValidator, getExpenseByIdValidator };
