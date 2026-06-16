@@ -99,4 +99,98 @@ const getExpenseById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, expense[0], "expense fetched successfully"));
 });
 
-export { createExpense, getAllExpenses, getExpenseById };
+const updateExpenseById = asyncHandler(async (req, res) => {
+  const { expenseId } = req.params;
+
+  const { name, amount, expenseDate, categoryId } = req.body;
+
+  // Check expense exists and belongs to logged-in user
+  const [expense] = await db.execute(
+    `
+    SELECT *
+    FROM expenses
+    WHERE id = ?
+      AND user_id = ?
+      AND deleted_at IS NULL
+    `,
+    [expenseId, req.user.id],
+  );
+
+  if (expense.length === 0) {
+    throw new ApiError(404, "Expense not found");
+  }
+
+  const existingExpense = expense[0];
+
+  // If category is being updated, verify ownership
+  if (categoryId) {
+    const [category] = await db.execute(
+      `
+      SELECT id
+      FROM categories
+      WHERE id = ?
+        AND user_id = ?
+      `,
+      [categoryId, req.user.id],
+    );
+
+    if (category.length === 0) {
+      throw new ApiError(404, "Category not found");
+    }
+  }
+
+  const updatedName = name ?? existingExpense.name;
+
+  const updatedAmount = amount ?? existingExpense.amount;
+
+  const updatedExpenseDate = expenseDate ?? existingExpense.expense_date;
+
+  const updatedCategoryId = categoryId ?? existingExpense.category_id;
+
+  const [result] = await db.execute(
+    `
+    UPDATE expenses
+    SET
+      name = ?,
+      amount = ?,
+      expense_date = ?,
+      category_id = ?
+    WHERE id = ?
+      AND user_id = ?
+    `,
+    [
+      updatedName,
+      updatedAmount,
+      updatedExpenseDate,
+      updatedCategoryId,
+      expenseId,
+      req.user.id,
+    ],
+  );
+
+  if (result.affectedRows === 0) {
+    throw new ApiError(400, "Failed to update expense");
+  }
+
+  const [updatedExpense] = await db.execute(
+    `
+    SELECT
+      id,
+      name,
+      amount,
+      expense_date,
+      category_id
+    FROM expenses
+    WHERE id = ?
+    `,
+    [expenseId],
+  );
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, updatedExpense[0], "Expense updated successfully"),
+    );
+});
+
+export { createExpense, getAllExpenses, getExpenseById, updateExpenseById };

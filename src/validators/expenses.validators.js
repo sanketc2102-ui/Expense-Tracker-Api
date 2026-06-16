@@ -39,4 +39,38 @@ const getExpenseByIdValidator = () => {
   ];
 };
 
-export { createExpenseValidator, getExpenseByIdValidator };
+const updateExpenseValidator = () => {
+  return [
+    param("expenseId")
+      .isInt({ gt: 0 })
+      .withMessage("Expense id must be a positive integer"),
+
+    body("name")
+      .optional()
+      .trim()
+      .notEmpty()
+      .isLength({ max: 200 })
+      .withMessage("Name must be less than 200 characters"),
+
+    body("amount")
+      .optional()
+      .isFloat({ gt: 0 })
+      .withMessage("Amount must be greater than 0"),
+
+    body("expenseDate")
+      .optional()
+      .isISO8601()
+      .withMessage("Expense date must be valid"),
+
+    body("categoryId")
+      .optional()
+      .isInt({ gt: 0 })
+      .withMessage("Category id must be a positive integer"),
+  ];
+};
+
+export {
+  createExpenseValidator,
+  getExpenseByIdValidator,
+  updateExpenseValidator,
+};
