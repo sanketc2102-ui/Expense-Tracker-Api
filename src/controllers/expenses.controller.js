@@ -48,4 +48,28 @@ const createExpense = asyncHandler(async (req, res) => {
   );
 });
 
-export { createExpense };
+const getAllExpenses = asyncHandler(async (req, res) => {
+  const [result] = await db.execute(
+    `
+      SELECT
+      e.id,
+      e.name,
+      e.expense_date,
+      e.amount,
+      c.type AS category
+    FROM expenses e
+    JOIN categories c
+      ON c.id = e.category_id
+    WHERE e.user_id = ?
+    AND e.deleted_at IS NULL
+    ORDER BY e.expense_date DESC
+    `,
+    [req.user.id],
+  );
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, result, "Expenses fetched successfully"));
+});
+
+export { createExpense, getAllExpenses };
