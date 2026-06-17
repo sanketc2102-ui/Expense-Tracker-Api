@@ -102,4 +102,40 @@ const deleteIncomeSourceById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "income source deleted successfully"));
 });
 
-export { createIncomeSource, getAllIncomeSources, deleteIncomeSourceById };
+const updateIncomeSourceById = asyncHandler(async (req, res) => {
+  const { sourceId } = req.params;
+  const { name } = req.body;
+
+  try {
+    const [result] = await db.execute(
+      `
+    UPDATE income_sources
+    SET name = ?
+    WHERE id = ?
+    AND user_id = ?
+    `,
+      [name, sourceId, req.user.id],
+    );
+
+    if (result.affectedRows === 0) {
+      throw new ApiError(404, "income source not found");
+    }
+  } catch (error) {
+    if (error.code === "ER_DUP_ENTRY") {
+      throw new ApiError(409, "Income source already exists");
+    }
+
+    throw error;
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Income source updated successfully"));
+});
+
+export {
+  createIncomeSource,
+  getAllIncomeSources,
+  deleteIncomeSourceById,
+  updateIncomeSourceById,
+};

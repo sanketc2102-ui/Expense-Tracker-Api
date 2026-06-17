@@ -19,4 +19,23 @@ const deleteIncomeSourceValidator = () => {
   ];
 };
 
-export { createIncomeSourceValidator, deleteIncomeSourceValidator };
+const updateIncomeSourceValidator = () => {
+  return [
+    param("sourceId")
+      .isInt({ gt: 0 })
+      .withMessage("income source id must be positive integer"),
+
+    body("name")
+      .trim()
+      .notEmpty()
+      .withMessage("name is required")
+      .isLength({ max: 100 })
+      .withMessage("name can not be more than 100 characters"),
+  ];
+};
+
+export {
+  createIncomeSourceValidator,
+  deleteIncomeSourceValidator,
+  updateIncomeSourceValidator,
+};
