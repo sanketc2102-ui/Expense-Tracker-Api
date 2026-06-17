@@ -49,4 +49,26 @@ const createIncomeSource = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, {}, "source of income created successfully"));
 });
 
-export { createIncomeSource };
+const getAllIncomeSources = asyncHandler(async (req, res) => {
+  const [incomeSources] = await db.execute(
+    `
+    SELECT id,name
+    FROM income_sources
+    WHERE user_id = ?
+    ORDER BY name ASC
+    `,
+    [req.user.id],
+  );
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        incomeSources,
+        "all sources of income fetched successfully",
+      ),
+    );
+});
+
+export { createIncomeSource, getAllIncomeSources };
