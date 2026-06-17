@@ -49,9 +49,10 @@ const createExpense = asyncHandler(async (req, res) => {
 });
 
 const getAllExpenses = asyncHandler(async (req, res) => {
-  const [result] = await db.execute(
-    `
-      SELECT
+  const { month, category, startDate, endDate } = req.query;
+
+  let query = `
+    SELECT
       e.id,
       e.name,
       e.expense_date,
@@ -61,11 +62,37 @@ const getAllExpenses = asyncHandler(async (req, res) => {
     JOIN categories c
       ON c.id = e.category_id
     WHERE e.user_id = ?
-    AND e.deleted_at IS NULL
+      AND e.deleted_at IS NULL
+  `;
+
+  const values = [req.user.id];
+
+  if (month) {
+    query += `
+      AND DATE_FORMAT(e.expense_date, '%Y-%m') = ?
+    `;
+    values.push(month);
+  }
+
+  if (category) {
+    query += `
+      AND c.type = ?
+    `;
+    values.push(category);
+  }
+
+  if (startDate && endDate) {
+    query += `
+      AND e.expense_date BETWEEN ? AND ?
+    `;
+    values.push(startDate, endDate);
+  }
+
+  query += `
     ORDER BY e.expense_date DESC
-    `,
-    [req.user.id],
-  );
+  `;
+
+  const [result] = await db.execute(query, values);
 
   return res
     .status(200)
