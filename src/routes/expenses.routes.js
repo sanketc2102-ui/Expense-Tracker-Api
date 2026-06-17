@@ -2,12 +2,14 @@ import { Router } from "express";
 import jwtVerify from "../middlewares/auth.middleware.js";
 import {
   createExpenseValidator,
+  deleteExpenseValidator,
   getExpenseByIdValidator,
   updateExpenseValidator,
 } from "../validators/expenses.validators.js";
 import validate from "../middlewares/validator.middleware.js";
 import {
   createExpense,
+  deleteExpenseById,
   getAllExpenses,
   getExpenseById,
   updateExpenseById,
@@ -28,5 +30,7 @@ router
 router
   .route("/:expenseId")
   .put(jwtVerify, updateExpenseValidator(), validate, updateExpenseById);
+
+router.route("/:expenseId").delete(jwtVerify, deleteExpenseById);
 
 export default router;

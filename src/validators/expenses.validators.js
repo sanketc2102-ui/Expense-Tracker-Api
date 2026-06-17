@@ -69,8 +69,17 @@ const updateExpenseValidator = () => {
   ];
 };
 
+const deleteExpenseValidator = () => {
+  return [
+    param("expenseId")
+      .isInt({ gt: 0 })
+      .withMessage("Expense id must be a positive integer"),
+  ];
+};
+
 export {
   createExpenseValidator,
   getExpenseByIdValidator,
   updateExpenseValidator,
+  deleteExpenseValidator,
 };

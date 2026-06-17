@@ -193,4 +193,33 @@ const updateExpenseById = asyncHandler(async (req, res) => {
     );
 });
 
-export { createExpense, getAllExpenses, getExpenseById, updateExpenseById };
+const deleteExpenseById = asyncHandler(async (req, res) => {
+  const { expenseId } = req.params;
+
+  const [result] = await db.execute(
+    `
+    UPDATE expenses
+    SET deleted_at = NOW()
+    WHERE id = ?
+    AND user_id = ?
+    AND deleted_at IS NULL
+    `,
+    [expenseId, req.user.id],
+  );
+
+  if (result.affectedRows === 0) {
+    throw new ApiError(404, "expense not found or already deleted");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Expense deleted successfully"));
+});
+
+export {
+  createExpense,
+  getAllExpenses,
+  getExpenseById,
+  updateExpenseById,
+  deleteExpenseById,
+};
