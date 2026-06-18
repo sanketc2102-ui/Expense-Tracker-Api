@@ -52,4 +52,28 @@ const createIncome = asyncHandler(async (req, res) => {
     );
 });
 
-export { createIncome };
+const getAllIncomes = asyncHandler(async (req, res) => {
+  const [result] = await db.execute(
+    `
+      SELECT
+        i.id,
+        i.amount,
+        i.income_date,
+        i.note,
+        s.id AS source_id,
+        s.name AS source_name
+      FROM incomes i
+      JOIN income_sources s
+        ON s.id = i.income_source_id
+      WHERE i.user_id = ?
+      ORDER BY i.income_date DESC
+    `,
+    [req.user.id],
+  );
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, result, "all income fetched successfully"));
+});
+
+export { createIncome, getAllIncomes };
