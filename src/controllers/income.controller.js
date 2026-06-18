@@ -97,4 +97,57 @@ const deleteIncomeById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "income successfully deleted"));
 });
 
-export { createIncome, getAllIncomes, deleteIncomeById };
+const updateIncomeById = asyncHandler(async (req, res) => {
+  const { incomeId } = req.params;
+  const { incomeSourceId, amount, incomeDate, note } = req.body;
+
+  // verify income exists
+  const [income] = await db.execute(
+    `
+    SELECT id
+    FROM incomes
+    WHERE id = ?
+    AND user_id = ?
+    `,
+    [incomeId, req.user.id],
+  );
+
+  if (income.length === 0) {
+    throw new ApiError(404, "income not found");
+  }
+
+  // verify source belongs to user
+  const [source] = await db.execute(
+    `
+    SELECT id
+    FROM income_sources
+    WHERE id = ?
+    AND user_id = ?
+    `,
+    [incomeSourceId, req.user.id],
+  );
+
+  if (source.length === 0) {
+    throw new ApiError(404, "income source not found");
+  }
+
+  const [result] = await db.execute(
+    `
+    UPDATE incomes
+    SET
+      income_source_id = ?,
+      amount = ?,
+      income_date = ?,
+      note = ?
+    WHERE id = ?
+    AND user_id = ?
+    `,
+    [incomeSourceId, amount, incomeDate, note, incomeId, req.user.id],
+  );
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "income updated successfully"));
+});
+
+export { createIncome, getAllIncomes, deleteIncomeById, updateIncomeById };

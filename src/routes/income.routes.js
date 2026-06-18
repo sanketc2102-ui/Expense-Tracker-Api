@@ -3,12 +3,14 @@ import jwtVerify from "../middlewares/auth.middleware.js";
 import {
   createIncomeValidators,
   deleteIncomeValidators,
+  updateIncomeValidators,
 } from "../validators/income.validators.js";
 import validate from "../middlewares/validator.middleware.js";
 import {
   createIncome,
   deleteIncomeById,
   getAllIncomes,
+  updateIncomeById,
 } from "../controllers/income.controller.js";
 
 const router = Router();
@@ -20,6 +22,7 @@ router
 
 router
   .route("/:incomeId")
-  .delete(jwtVerify, deleteIncomeValidators(), validate, deleteIncomeById);
+  .delete(jwtVerify, deleteIncomeValidators(), validate, deleteIncomeById)
+  .put(jwtVerify, updateIncomeValidators(), validate, updateIncomeById);
 
 export default router;
