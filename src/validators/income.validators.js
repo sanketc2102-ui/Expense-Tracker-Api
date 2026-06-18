@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 
 // { incomeSourceId, amount, incomeDate }
 
@@ -27,4 +27,14 @@ const createIncomeValidators = () => {
   ];
 };
 
-export { createIncomeValidators };
+const deleteIncomeValidators = () => {
+  return [
+    param("incomeId")
+      .trim()
+      .isInt({ gt: 0 })
+      .withMessage("income id must be positive integer")
+      .toInt(),
+  ];
+};
+
+export { createIncomeValidators, deleteIncomeValidators };

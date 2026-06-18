@@ -76,4 +76,25 @@ const getAllIncomes = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, result, "all income fetched successfully"));
 });
 
-export { createIncome, getAllIncomes };
+const deleteIncomeById = asyncHandler(async (req, res) => {
+  const { incomeId } = req.params;
+
+  const [result] = await db.execute(
+    `
+      DELETE FROM incomes
+      WHERE id = ?
+      AND user_id = ?
+    `,
+    [incomeId, req.user.id],
+  );
+
+  if (result.affectedRows === 0) {
+    throw new ApiError(400, "income does not exist");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "income successfully deleted"));
+});
+
+export { createIncome, getAllIncomes, deleteIncomeById };
