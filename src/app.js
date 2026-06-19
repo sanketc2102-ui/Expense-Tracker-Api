@@ -35,7 +35,7 @@ app.use("/api/v1/categories", categoriesRouter);
 app.use("/api/v1/expenses", expensesRouter);
 app.use("/api/v1/income-sources", incomeSourceRouter);
 app.use("/api/v1/incomes", incomesRouter);
-app.use("/api/v1/budget", budgetRouter);
+app.use("/api/v1/budgets", budgetRouter);
 
 // gloable Error handling
 app.use(errorHandler);
