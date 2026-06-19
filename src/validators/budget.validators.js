@@ -40,4 +40,13 @@ const deleteBudgetValidators = () => {
   ];
 };
 
-export { createBudgetValidators, deleteBudgetValidators };
+const getABudgetValidators = () => {
+  return [
+    param("budgetId")
+      .isInt({ gt: 0 })
+      .withMessage("budget id should be positive integer")
+      .toInt(),
+  ];
+};
+
+export { createBudgetValidators, deleteBudgetValidators, getABudgetValidators };

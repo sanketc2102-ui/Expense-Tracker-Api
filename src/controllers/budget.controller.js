@@ -81,6 +81,38 @@ const getAllBudgets = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, result, "all budgets fetched successfuly"));
 });
 
+const getBudgetById = asyncHandler(async (req, res) => {
+  const { budgetId } = req.params;
+
+  const [result] = await db.execute(
+    `
+      SELECT 
+       b.id,
+       b.amount,
+       b.start_date,
+       b.period,
+       c.type AS category_name
+      FROM budgets b
+      LEFT JOIN categories c
+        ON b.category_id = c.id
+      WHERE b.user_id = ?
+      AND b.id = ?
+    
+    `,
+    [req.user.id, budgetId],
+  );
+
+  const budgetNotFound = result.length === 0;
+
+  if (budgetNotFound) {
+    throw new ApiError(404, "bugest not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, result[0], "budget fetched successfully"));
+});
+
 const deleteBudgetById = asyncHandler(async (req, res) => {
   const { budgetId } = req.params;
 
@@ -102,4 +134,4 @@ const deleteBudgetById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "budget deleted successfully"));
 });
 
-export { createBudget, getAllBudgets, deleteBudgetById };
+export { createBudget, getAllBudgets, deleteBudgetById, getBudgetById };
