@@ -16,10 +16,29 @@ const getDashboardSummary = asyncHandler(async (req, res) => {
     [req.user.id],
   );
 
-  return res.json(new ApiResponse(200, result[0], "dashboard summery fetched"));
+  return res
+    .status(200)
+    .json(new ApiResponse(200, result[0], "dashboard summery fetched"));
 });
 
-const getMonthlySpend = asyncHandler(async (req, res) => {});
+const getMonthlySpend = asyncHandler(async (req, res) => {
+  const [result] = await db.execute(
+    `
+    SELECT 
+      category,
+      month,
+      total_spent
+    FROM v_monthly_spend
+    WHERE user_id = ?
+    ORDER BY month DESC
+    `,
+    [req.user.id],
+  );
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, result[0], "monthly spend fetched"));
+});
 
 const getIncomeVsExpense = asyncHandler(async (req, res) => {});
 
