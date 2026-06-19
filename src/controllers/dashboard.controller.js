@@ -40,7 +40,23 @@ const getMonthlySpend = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, result[0], "monthly spend fetched"));
 });
 
-const getIncomeVsExpense = asyncHandler(async (req, res) => {});
+const getIncomeVsExpense = asyncHandler(async (req, res) => {
+  const [result] = await db.execute(
+    `
+    SELECT
+      total_income,
+      total_expense,
+      net_savings
+    FROM v_income_vs_expense
+    WHERE user_id = ?
+    `,
+    [req.user.id],
+  );
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, result[0], "Income vs expense fetched"));
+});
 
 const getBudgetVsActual = asyncHandler(async (req, res) => {});
 
