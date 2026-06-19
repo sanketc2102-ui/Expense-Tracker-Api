@@ -58,4 +58,41 @@ const createBudget = asyncHandler(async (req, res) => {
   }
 });
 
-export { createBudget };
+/*    SELECT
+        i.id,
+        i.amount,
+        i.income_date,
+        i.note,
+        s.id AS source_id,
+        s.name AS source_name
+      FROM incomes i
+      JOIN income_sources s
+        ON s.id = i.income_source_id
+      WHERE i.user_id = ?
+      ORDER BY i.income_date DESC
+ */
+
+const getAllBudgets = asyncHandler(async (req, res) => {
+  const [result] = await db.execute(
+    `
+       SELECT
+          b.id,
+          b.amount,
+          b.period,
+          b.start_date,
+          COALESCE(c.type, 'Overall') AS category_name
+      FROM budgets b
+      LEFT JOIN categories c
+          ON c.id = b.category_id
+      WHERE b.user_id = ?
+      ORDER BY b.start_date DESC
+    `,
+    [req.user.id],
+  );
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, result, "all budgets fetched successfuly"));
+});
+
+export { createBudget, getAllBudgets };
