@@ -4,6 +4,7 @@ import {
   createBudgetValidators,
   deleteBudgetValidators,
   getABudgetValidators,
+  updateBudgetValidators,
 } from "../validators/budget.validators.js";
 import validate from "../middlewares/validator.middleware.js";
 import {
@@ -11,6 +12,7 @@ import {
   deleteBudgetById,
   getAllBudgets,
   getBudgetById,
+  updateBudgetById,
 } from "../controllers/budget.controller.js";
 
 const router = Router();
@@ -23,6 +25,7 @@ router
 router
   .route("/:budgetId")
   .delete(jwtVerify, deleteBudgetValidators(), validate, deleteBudgetById)
-  .get(jwtVerify, getABudgetValidators(), validate, getBudgetById);
+  .get(jwtVerify, getABudgetValidators(), validate, getBudgetById)
+  .put(jwtVerify, updateBudgetValidators(), validate, updateBudgetById);
 
 export default router;

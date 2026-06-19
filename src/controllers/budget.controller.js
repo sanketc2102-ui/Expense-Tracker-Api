@@ -134,4 +134,65 @@ const deleteBudgetById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "budget deleted successfully"));
 });
 
-export { createBudget, getAllBudgets, deleteBudgetById, getBudgetById };
+const updateBudgetById = asyncHandler(async (req, res) => {
+  const { budgetId } = req.params;
+  const { amount, period, startDate, categoryId } = req.body;
+
+  // Validate category ownership only when categoryId is provided
+  if (categoryId) {
+    const [category] = await db.execute(
+      `
+      SELECT id
+      FROM categories
+      WHERE id = ?
+      AND user_id = ?
+      `,
+      [categoryId, req.user.id],
+    );
+
+    if (category.length === 0) {
+      throw new ApiError(404, "category not found");
+    }
+  }
+
+  try {
+    const [result] = await db.execute(
+      `
+      UPDATE budgets
+      SET
+        amount = ?,
+        period = ?,
+        start_date = ?,
+        category_id = ?
+      WHERE id = ?
+      AND user_id = ?
+      `,
+      [amount, period, startDate, categoryId ?? null, budgetId, req.user.id],
+    );
+
+    if (result.affectedRows === 0) {
+      throw new ApiError(404, "budget not found");
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "budget updated successfully"));
+  } catch (error) {
+    if (error.code === "ER_DUP_ENTRY") {
+      throw new ApiError(
+        409,
+        "budget already exists for this category and period",
+      );
+    }
+
+    throw error;
+  }
+});
+
+export {
+  createBudget,
+  getAllBudgets,
+  deleteBudgetById,
+  getBudgetById,
+  updateBudgetById,
+};
