@@ -10,6 +10,7 @@ import expensesRouter from "./routes/expenses.routes.js";
 import incomeSourceRouter from "./routes/incomeSources.routes.js";
 import incomesRouter from "./routes/income.routes.js";
 import budgetRouter from "./routes/budget.routes.js";
+import dashboardRouter from "./routes/dashboard.routes.js";
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use("/api/v1/expenses", expensesRouter);
 app.use("/api/v1/income-sources", incomeSourceRouter);
 app.use("/api/v1/incomes", incomesRouter);
 app.use("/api/v1/budgets", budgetRouter);
+app.use("/api/v1/dashboard", dashboardRouter);
 
 // gloable Error handling
 app.use(errorHandler);
