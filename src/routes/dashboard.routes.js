@@ -1,11 +1,11 @@
 import { Router } from "express";
-import jwtVerify from "../middlewares/auth.middleware";
+import jwtVerify from "../middlewares/auth.middleware.js";
 import {
   getBudgetVsActual,
   getDashboardSummary,
   getIncomeVsExpense,
   getMonthlySpend,
-} from "../controllers/dashboard.controller";
+} from "../controllers/dashboard.controller.js";
 
 const router = Router();
 
