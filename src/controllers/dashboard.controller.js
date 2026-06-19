@@ -58,7 +58,23 @@ const getIncomeVsExpense = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, result[0], "Income vs expense fetched"));
 });
 
-const getBudgetVsActual = asyncHandler(async (req, res) => {});
+const getBudgetVsActual = asyncHandler(async (req, res) => {
+  const [result] = await db.execute(
+    `
+    SELECT
+      budget_id,
+      category,
+      budget_amount,
+      spent,
+      remaining
+    FROM v_budget_vs_actual
+    WHERE user_id = ?
+    `,
+    [req.user.id],
+  );
+
+  res.status(200).json(new ApiResponse(200, result, "Budget analysis fetched"));
+});
 
 export {
   getDashboardSummary,
