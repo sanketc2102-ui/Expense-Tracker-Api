@@ -1,9 +1,13 @@
 import { Router } from "express";
 import jwtVerify from "../middlewares/auth.middleware.js";
-import { createBudgetValidators } from "../validators/budget.validators.js";
+import {
+  createBudgetValidators,
+  deleteBudgetValidators,
+} from "../validators/budget.validators.js";
 import validate from "../middlewares/validator.middleware.js";
 import {
   createBudget,
+  deleteBudgetById,
   getAllBudgets,
 } from "../controllers/budget.controller.js";
 
@@ -13,5 +17,9 @@ router
   .route("/")
   .post(jwtVerify, createBudgetValidators(), validate, createBudget)
   .get(jwtVerify, getAllBudgets);
+
+router
+  .route("/:budgetId")
+  .delete(jwtVerify, deleteBudgetValidators(), validate, deleteBudgetById);
 
 export default router;

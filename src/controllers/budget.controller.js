@@ -58,20 +58,6 @@ const createBudget = asyncHandler(async (req, res) => {
   }
 });
 
-/*    SELECT
-        i.id,
-        i.amount,
-        i.income_date,
-        i.note,
-        s.id AS source_id,
-        s.name AS source_name
-      FROM incomes i
-      JOIN income_sources s
-        ON s.id = i.income_source_id
-      WHERE i.user_id = ?
-      ORDER BY i.income_date DESC
- */
-
 const getAllBudgets = asyncHandler(async (req, res) => {
   const [result] = await db.execute(
     `
@@ -95,4 +81,25 @@ const getAllBudgets = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, result, "all budgets fetched successfuly"));
 });
 
-export { createBudget, getAllBudgets };
+const deleteBudgetById = asyncHandler(async (req, res) => {
+  const { budgetId } = req.params;
+
+  const [result] = await db.execute(
+    `
+        DELETE FROM budgets
+        WHERE user_id = ?
+        AND id = ?
+      `,
+    [req.user.id, budgetId],
+  );
+
+  if (result.affectedRows === 0) {
+    throw new ApiError(400, "somthing went wrong while deleting the budget");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "budget deleted successfully"));
+});
+
+export { createBudget, getAllBudgets, deleteBudgetById };

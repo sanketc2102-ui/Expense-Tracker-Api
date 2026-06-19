@@ -32,4 +32,12 @@ const createBudgetValidators = () => {
   ];
 };
 
-export { createBudgetValidators };
+const deleteBudgetValidators = () => {
+  return [
+    param("budgetId")
+      .isInt({ gt: 0 })
+      .withMessage("budget id should be positive integer"),
+  ];
+};
+
+export { createBudgetValidators, deleteBudgetValidators };
