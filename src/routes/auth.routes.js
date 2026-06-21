@@ -22,13 +22,12 @@ router
   .post(registerUserValidators(), validate, registerUser);
 
 router.route("/login").post(loginUserValidators(), validate, login);
-router.route("/logout").post(jwtVerify, logOut);
 
 router.route("/verify-email/:verificationToken").get(verifyEmail);
 
-router.route("/change-password").post(jwtVerify, changeCurrentPassword);
-
 // secured route
 router.route("/me").get(jwtVerify, getCurrentUser);
+router.route("/change-password").post(jwtVerify, changeCurrentPassword);
+router.route("/logout").post(jwtVerify, logOut);
 
 export default router;
