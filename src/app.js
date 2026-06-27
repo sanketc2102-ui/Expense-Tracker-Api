@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.routes.js";
 import categoriesRouter from "./routes/categories.routes.js";
 import expensesRouter from "./routes/expenses.routes.js";
+import incomeSourceRouter from "./routes/incomeSources.routes.js";
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use(
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/categories", categoriesRouter);
 app.use("/api/v1/expenses", expensesRouter);
+app.use("/api/v1/income-sources", incomeSourceRouter);
 
 // gloable Error handling
 app.use(errorHandler);
