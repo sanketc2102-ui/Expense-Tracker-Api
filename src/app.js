@@ -1,9 +1,12 @@
 import express from "express";
 import cors from "cors";
-import authRouter from "./routes/auth.routes.js";
-import categoriesRouter from "./routes/categories.routes.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import cookieParser from "cookie-parser";
+
+// Routes
+import authRouter from "./routes/auth.routes.js";
+import categoriesRouter from "./routes/categories.routes.js";
+import expensesRouter from "./routes/expenses.routes.js";
 
 const app = express();
 
@@ -26,6 +29,7 @@ app.use(
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/categories", categoriesRouter);
+app.use("/api/v1/expenses", expensesRouter);
 
 // gloable Error handling
 app.use(errorHandler);
