@@ -8,6 +8,7 @@ import authRouter from "./routes/auth.routes.js";
 import categoriesRouter from "./routes/categories.routes.js";
 import expensesRouter from "./routes/expenses.routes.js";
 import incomeSourceRouter from "./routes/incomeSources.routes.js";
+import incomesRouter from "./routes/income.routes.js";
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/categories", categoriesRouter);
 app.use("/api/v1/expenses", expensesRouter);
 app.use("/api/v1/income-sources", incomeSourceRouter);
+app.use("/api/v1/incomes", incomesRouter);
 
 // gloable Error handling
 app.use(errorHandler);
