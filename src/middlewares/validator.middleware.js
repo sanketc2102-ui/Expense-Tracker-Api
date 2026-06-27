@@ -17,8 +17,6 @@ const validate = asyncHandler(async (req, res, next) => {
     }),
   );
 
-  console.log(extractedErrors);
-
   throw new ApiError(400, "Received data is invalid", extractedErrors);
 });
 

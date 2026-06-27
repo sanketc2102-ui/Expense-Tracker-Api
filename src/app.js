@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import authRouter from "./routes/auth.routes.js";
+import categoriesRouter from "./routes/categories.routes.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import cookieParser from "cookie-parser";
 
@@ -24,6 +25,7 @@ app.use(
 );
 
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/categories", categoriesRouter);
 
 // gloable Error handling
 app.use(errorHandler);
