@@ -27,6 +27,12 @@ router.route("/login").post(loginUserValidators(), validate, login);
 
 router.route("/verify-email/:verificationToken").get(verifyEmail);
 
+router.route("/refresh-token").post(refreshAccessToken);
+
+router.route("/forgot-password").post(forgotPasswordRequest);
+
+router.route("/reset-password/:resetToken").post(resetForgotPassword);
+
 // secured route
 router.route("/me").get(jwtVerify, getCurrentUser);
 router.route("/change-password").post(jwtVerify, changeCurrentPassword);
